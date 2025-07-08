@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400..800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thapar Live Crowd Tracker</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Baloo 2', sans-serif;
+            height: 100%;
+        }
+
+        body {
+            background: url('https://upload.wikimedia.org/wikipedia/commons/7/79/Thapar_University_campus.jpg') no-repeat center center fixed;
+            background-size: cover;
+            transition: background 0.5s ease-in-out;
+        }
+
+        .home-background {
+            background: url('https://i.postimg.cc/Y24YdHhd/Untitled-1.png') no-repeat center center fixed !important;
+            background-size: cover !important;
+        }
+
+        .gym-background {
+            background: url('https://i.postimg.cc/Hkc72G3Q/Untitled-1.png') no-repeat center center fixed;
+            background-size: cover;
+            transition: background 0.5s ease-in-out;
+        }
+
+        .kravings-background {
+            background: url('https://i.postimg.cc/q7bkNgH0/Untitled-1.png') no-repeat center center fixed;
+            background-size: cover;
+            transition: background 0.5s ease-in-out;
+        }
+
+        .library-background {
+            background: url('https://i.postimg.cc/PrCpMs5d/036b70c0-bbdd-488c-a04a-67985bf2a46b.png') no-repeat center center fixed;
+            background-size: cover;
+            transition: background 0.5s ease-in-out;
+        }
+
+        .sports-background {
+            background: url('https://i.postimg.cc/DmVSZ64t/85dfc727-4985-439b-981a-ef6874e72abc.png') no-repeat center center fixed;
+            background-size: cover;
+            transition: background 0.5s ease-in-out;
+        }
+
+        nav {
+            background-color: #1f2937;
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 100;
+            height: 45px;
+        }
+
+        .nav-left img {
+            height: 30px;
+        }
+
+        .nav-left {
+            position: absolute;
+            left: 2rem;
+        }
+
+        .nav-right {
+            display: none;
+        }
+
+        .nav-center {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .nav-center ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-center li {
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .nav-center li:hover::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #6366f1;
+            bottom: -5px;
+            left: 0;
+        }
+
+        .background {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 90vh;
+            padding-top: 5rem;
+            text-align: center;
+        }
+
+        #content {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 800px;
+            margin-top: 2rem;
+        }
+
+        .bar-container {
+            margin: 1rem 0;
+        }
+
+        .bar-label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .bar {
+            height: 14px;
+            background: #818589;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: #3b82f6;
+            width: 0;
+            transition: width 0.8s ease;
+            border-radius: 9999px;
+        }
+
+        .subheading {
+            font-size: 1.5rem;
+        }
+    </style>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+</head>
+<body onload="showSection('home')">
+
+<nav>
+    <div class="nav-left">
+        <img src="https://i.postimg.cc/jjh0Cy3m/A-professional-logo-for-a-website-called-Crowd-Meter-with-a-white-theme-and-transparent-background.png" alt="Logo">
+    </div>
+    <div class="nav-center">
+        <ul>
+            <li onclick="showSection('home')">Home</li>
+            <li onclick="showSection('sports')">Sports</li>
+            <li onclick="showSection('gym')">Gym</li>
+            <li onclick="showSection('library')">Library</li>
+            <li onclick="showSection('kravings')">Kravings</li>
+        </ul>
+    </div>
+</nav>
+
+<div class="background">
+    <div id="content">
+        <h2>Select a category from the navigation bar!</h2>
+    </div>
+</div>
+
+<script>
+const fakeData = {
+    sports: [
+        {name: 'Badminton Kits', taken: 12, total: 20},
+        {name: 'Tennis Kits', taken: 5, total: 10},
+        {name: 'Cricket Kits', taken: 7, total: 10},
+        {name: 'Badminton Courts', taken: 5, total: 7}
+    ],
+    gym: [
+        {name: 'Amritam Hall', current: 15},
+        {name: 'Prithvi Hall', current: 22},
+        {name: 'Neeram Hall', current: 18},
+        {name: 'Vyan Hall', current: 10},
+        {name: 'Tejas Hall', current: 5},
+        {name: 'Ambaram Hall', current: 25},
+        {name: 'Viyat Hall', current: 30},
+        {name: 'Anantam Hall', current: 8},
+        {name: 'Vyom Hall', current: 12},
+    ],
+    library: [
+        {floor: 'Ground Floor', current: 60, total: 100},
+        {floor: 'First Floor', current: 45, total: 100},
+        {floor: 'Second Floor', current: 30, total: 100},
+        {floor: 'Third Floor', current: 20, total: 50},
+        {floor: 'Fourth Floor', current: 10, total: 50}
+    ]
+};
+
+let model;
+
+async function loadModel() {
+    model = await cocoSsd.load();
+}
+
+loadModel();
+
+function showSection(section) {
+    const content = document.getElementById('content');
+    const body = document.body;
+    content.innerHTML = '';
+
+    body.classList.remove('home-background', 'gym-background', 'kravings-background', 'library-background', 'sports-background');
+
+    if (section === 'home') {
+        content.innerHTML = `<h1 style="font-size: 2.5rem; color: #1f2937;">Approximate Crowd Meter</h1>`;
+        body.classList.add('home-background');
+    }
+    else if (section === 'gym') {
+        content.innerHTML = '<h1>Gym Crowd Levels</h1>';
+        fakeData.gym.forEach(hall => {
+            const percent = Math.round((hall.current / 40) * 100);
+            content.innerHTML += `
+                <div class="bar-container">
+                    <div class="bar-label">
+                        <span class="subheading">${hall.name}</span>: ${percent}% full
+                    </div>
+                    <div class="bar">
+                        <div class="bar-fill" style="width:${percent}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+        body.classList.add('gym-background');
+    }
+    else if (section === 'sports') {
+        content.innerHTML = '<h1>Sports Equipment and Facility Availability</h1>';
+        fakeData.sports.forEach(item => {
+            const percent = Math.round((item.taken / item.total) * 100);
+            content.innerHTML += `
+                <div class="bar-container">
+                    <div class="bar-label">
+                        <span class="subheading">${item.name}</span>: ${item.total - item.taken} available
+                    </div>
+                    <div class="bar">
+                        <div class="bar-fill" style="width:${percent}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+        body.classList.add('sports-background');
+    }
+    else if (section === 'library') {
+        content.innerHTML = '<h1>Library Floor-wise Crowd</h1>';
+        fakeData.library.forEach(floor => {
+            const percent = Math.round((floor.current / floor.total) * 100);
+            content.innerHTML += `
+                <div class="bar-container">
+                    <div class="bar-label">
+                        <span class="subheading">${floor.floor}</span>: ${floor.current}/${floor.total} seats occupied
+                    </div>
+                    <div class="bar">
+                        <div class="bar-fill" style="width:${percent}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+        body.classList.add('library-background');
+    }
+    else if (section === 'kravings') {
+        content.innerHTML = `
+            <h1>Kravings Food Counter Crowd</h1>
+            <video id="videoElement" width="640" height="480" autoplay muted playsinline></video>
+            <div class="bar-container">
+                <div class="bar-label" id="peopleCountText">Detecting...</div>
+                <div class="bar">
+                    <div class="bar-fill" id="bar-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        `;
+        body.classList.add('kravings-background');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                const videoElement = document.getElementById('videoElement');
+                videoElement.srcObject = stream;
+
+                videoElement.onloadedmetadata = () => {
+                    detectFrame(videoElement);
+                };
+            })
+            .catch(function(error) {
+                console.error("Error accessing webcam:", error);
+            });
+    }
+}
+
+async function detectFrame(video) {
+    if (model) {
+        const predictions = await model.detect(video);
+        const peopleCount = predictions.filter(p => p.class === 'person').length;
+
+        const countText = document.getElementById('peopleCountText');
+        const barFill = document.getElementById('bar-fill');
+
+        if (countText && barFill) {
+            countText.innerText = `Current: ${peopleCount} people`;
+            const percent = Math.min(100, (peopleCount / 100) * 100);
+            barFill.style.width = `${percent}%`;
+        }
+    }
+    requestAnimationFrame(() => detectFrame(video));
+}
+</script>
+
+</body>
+</html>
